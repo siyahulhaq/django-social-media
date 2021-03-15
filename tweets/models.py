@@ -17,8 +17,8 @@ class Like(models.Model):
         return self.user.user.username
 
 class Comment(models.Model):
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     body = models.CharField(max_length=1024, null=True)
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     tweet = models.ForeignKey(Tweet, on_delete=models.CASCADE,null=True)
     def __str__(self) -> str:
         return self.body

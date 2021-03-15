@@ -3,24 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from . import models
 from userprofile.models import Profile
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ("username",
-                  "first_name",
-                  "last_name",
-                  "email",)
-
-
-class OwnerSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-
-    class Meta:
-        model = Profile
-        fields = '__all__'
-
+from userprofile.serializers import OwnerSerializer,UserSerializer
 
 class LikeSerializer(serializers.ModelSerializer):
     user = OwnerSerializer()
