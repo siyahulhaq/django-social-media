@@ -1,11 +1,13 @@
 from django.db.models import fields
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from . import models
+from userprofile.models import Profile
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.User
+        model = User
         fields = ("username",
                   "first_name",
                   "last_name",
@@ -16,7 +18,7 @@ class OwnerSerializer(serializers.ModelSerializer):
     user = UserSerializer()
 
     class Meta:
-        model = models.Subscriber
+        model = Profile
         fields = '__all__'
 
 
@@ -46,6 +48,7 @@ class TweetSerializer(serializers.ModelSerializer):
         comment = models.Comment.objects.filter(tweet=tweet_id)
         serialized = CommentSerializer(data=comment, many=True)
         serialized.is_valid()
+        print(self.context)
         return serialized.data
 
     def _get_likes(self, tweet_object):

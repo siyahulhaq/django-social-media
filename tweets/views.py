@@ -7,5 +7,5 @@ from .serializers import TweetSerializer
 class Tweets(APIView):
     def get(self,request, *args, **kwargs):
         tweet = Tweet.objects.all()
-        serializers = TweetSerializer(tweet,many=True)
+        serializers = TweetSerializer(tweet,many=True,context={'test':'test'})
         return Response(serializers.data)
