@@ -1,5 +1,3 @@
-from rest_framework import serializers
-from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
@@ -46,7 +44,6 @@ class UserTweets(APIView):
             serializer = TweetSerializer(tweet)
             return Response(serializer.data)
         return Response({'error': invalid_input}, status=301)
-
 
 class UpdateTweets(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -148,12 +145,10 @@ class Likes(APIView):
     def post(self, request,):
         data = request.data
         profile = Profile.objects.get(user=request.user)
-        like = None
         try:
             like = Like.objects.get(user=profile)
+            return Response({'error': "You have already liked"}, status=405)
         except Like.DoesNotExist:
-            like = None
-        if like is None:
             if 'tweetId' in data:
                 tweet_id = data['tweetId']
                 tweet = Tweet.objects.get(pk=tweet_id)
@@ -163,8 +158,6 @@ class Likes(APIView):
                 return Response(serializer.data)
             else:
                 return Response({'error': invalid_input}, status=400)
-        else:
-            return Response({'error': "You have already liked"}, status=405)
 
     def delete(self, request):
         data = request.data
