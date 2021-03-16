@@ -6,8 +6,8 @@ from rest_framework import permissions
 from userprofile.models import Profile
 from .models import Like, Tweet, Comment
 from .serializers import TweetSerializer
-# Create your views here.
-#constants
+
+# constants
 invalid_input = "Invalid Inputs"
 
 
@@ -66,27 +66,23 @@ class UpdateTweets(APIView):
         else:
             return Response({"error": "Tweet is not found"}, status=404)
 
-    def post(self, request, pk):
+    def put(self, request, pk):
         text = ""
         data = request.data
         if 'text' in data:
             text = data['text']
         tweet = None
-        print(text)
         try:
             tweet = Tweet.objects.get(pk=pk)
         except Tweet.DoesNotExist:
-            tweet = None
-        if tweet is not None:
-            if (request.user.id == tweet.owner.id):
-                tweet.text = text
-                tweet.save()
-                serializer = TweetSerializer(tweet)
-                return Response(serializer.data)
-            else:
-                Response({"error": "You can not delete this tweet"}, status=401)
-        else:
             return Response({"error": "Tweet is not found"}, status=404)
+        if (request.user.id == tweet.owner.id):
+            tweet.text = text
+            tweet.save()
+            serializer = TweetSerializer(tweet)
+            return Response(serializer.data)
+        else:
+            Response({"error": "You can not delete this tweet"}, status=401)
 
 
 class Comments(APIView):
@@ -106,6 +102,44 @@ class Comments(APIView):
             return Response(serializer.data)
         else:
             return Response({'error': invalid_input}, status=400)
+
+    def put(self, request):
+        comment = None
+        if ('body' and 'commentId') in request.data:
+            profile = Profile.objects.get(user=request.user)
+            try:
+                comment = Comment.objects.get(pk=request.data['commentId'])
+            except Comment.DoesNotExist:
+                return Response({'error': "comment Not found"}, status=404)
+            if(comment.user.id == profile.id):
+                comment.body = request.data['body']
+                comment.save()
+                tweet = Tweet.objects.get(pk=comment.tweet.id)
+                serialized = TweetSerializer(tweet)
+                return Response(serialized.data)
+            else:
+                return Response({'error': "You are not allowed to edit this comment"}, status=403)
+        else:
+            return Response({'error': invalid_input}, status=401)
+
+    def delete(self, request):
+        if 'commentId' in request.data:
+            profile = Profile.objects.get(user=request.user)
+            comment = None
+            try:
+                comment = Comment.objects.get(id=request.data['commentId'])
+            except Comment.DoesNotExist:
+                return Response({'error': "comment Not found"}, status=404)
+            if(comment.user.id == profile.id):
+                tweet = Tweet.objects.get(id=comment.tweet.id)
+                comment.delete()
+                serialized = TweetSerializer(tweet)
+                return Response(serialized.data)
+            else:
+                return Response({'error': "You are not allowed to delete this comment"}, status=403)
+
+        else:
+            return Response({'error': invalid_input}, status=401)
 
 
 class Likes(APIView):
