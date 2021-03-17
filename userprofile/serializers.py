@@ -9,11 +9,27 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ("username",
                   "first_name",
                   "last_name",
-                  "email",)
+                  "email",
+                  "id")
 
 
 class OwnerSerializer(serializers.ModelSerializer):
     user = UserSerializer()
+    followers = serializers.SerializerMethodField('_get_followers')
+    followings = serializers.SerializerMethodField('_get_followings')
+
+    def _get_followers(self,profile_obj):
+        followers = getattr(profile_obj,'followers')
+        serialized = UserSerializer(data=followers,many=True)
+        serialized.is_valid()
+        return serialized.data
+
+    def _get_followings(self,profile_obj):
+        followings = getattr(profile_obj,'followings')
+        serialized = UserSerializer(data=followings,many=True)
+        serialized.is_valid()
+        return serialized.data
+
     class Meta:
         model = Profile
         fields = '__all__'
