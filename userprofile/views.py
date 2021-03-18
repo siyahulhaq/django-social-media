@@ -16,7 +16,6 @@ class ProfileView(views.APIView):
         user = Profile.objects.get(user=request.user)
         print(user)
         serializer = OwnerSerializer(user)
-        print(serializer.data)
         return response.Response(serializer.data)
 
 
