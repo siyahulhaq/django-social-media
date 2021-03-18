@@ -4,3 +4,4 @@ mysqlclient==2.0.3
 django-rest-knox==4.1.0
 graphene-django==2.15.0
 PyJWT==1.7.1
+django-graphql-jwt=0.3.1

@@ -4,10 +4,23 @@ from userprofile.schema import Profile
 from . import models
 from . import serializers
 
+class Comment(graphene.ObjectType):
+    body =graphene.String()
+    user = graphene.Field(Profile)
+    created_at = graphene.String()
+    updated_at = graphene.String()
+
+class Like(graphene.ObjectType):
+    user = graphene.Field(Profile)
+    created_at = graphene.String()
 
 class Tweet(graphene.ObjectType):
     text = graphene.String()
     owner = graphene.Field(Profile)
+    comment = graphene.List(Comment)
+    created_at = graphene.String()
+    updated_at = graphene.String()
+    likes = graphene.List(Like)
 
 
 class Query(graphene.ObjectType):
