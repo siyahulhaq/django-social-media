@@ -44,7 +44,6 @@ class CreateUser(graphene.Mutation):
         except IntegrityError:
             raise GraphQLError("Username is already existing")
 
-
 class Query(graphene.ObjectType):
     get_all_profiles = graphene.List(Profile)
     get_me = graphene.Field(Profile)
@@ -72,3 +71,4 @@ class Mutation(graphene.ObjectType):
     verify_token = graphql_jwt.Verify.Field()
     refresh_token = graphql_jwt.Refresh.Field()
     create_user = CreateUser.Field()
+    
