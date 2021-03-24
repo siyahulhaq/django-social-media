@@ -1,4 +1,5 @@
 import graphene
+from graphene_file_upload.scalars import Upload
 from graphql import GraphQLError
 from userprofile.schema import Profile
 from userprofile import models
@@ -25,6 +26,7 @@ class Tweet(graphene.ObjectType):
     comment = graphene.List(Comment)
     created_at = graphene.String()
     updated_at = graphene.String()
+    image = graphene.String()
     likes = graphene.List(Like)
 
 
@@ -51,16 +53,19 @@ class CreateTweet(graphene.Mutation):
     tweet = graphene.Field(Tweet)
 
     class Arguments:
+        file = Upload(required=True)
         text = graphene.String()
 
-    def mutate(self, info, text):
+    def mutate(self, info, file, text):
         if info.context.user.is_anonymous:
             raise GraphQLError('No Authorization Token Found')
         else:
+            print(info.context.user)
             owner = models.Profile.objects.get(user=info.context.user)
-            tweet = models.Tweet(text=text, owner=owner)
+            tweet = models.Tweet(text=text, image=file, owner=owner)
             tweet.save()
             return CreateTweet(tweet=tweet)
+
 
 class UpdateTweet(graphene.Mutation):
     tweet = graphene.Field(Tweet)
@@ -68,12 +73,13 @@ class UpdateTweet(graphene.Mutation):
     class Arguments:
         text = graphene.String()
         tweet_id = graphene.String()
-    def mutate(self, info, text,tweet_id):
+
+    def mutate(self, info, text, tweet_id):
         if info.context.user.is_anonymous:
             raise GraphQLError('No Authorization Token Found')
         else:
             owner = models.Profile.objects.get(user=info.context.user)
-            tweet = models.Tweet.objects.get(id = tweet_id)
+            tweet = models.Tweet.objects.get(id=tweet_id, owner=owner)
             tweet.text = text
             tweet.save()
             return UpdateTweet(tweet=tweet)
